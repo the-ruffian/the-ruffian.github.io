@@ -6,17 +6,24 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://TheRuffian.com">
-  <title>Tag: ubuntu | BugPZ</title>
+  <title>nginx代理mysql数据库 stream | BugPZ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="in case I don&#39;t see you, Good afternoon, Good evening, And good night.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="BugPZ">
-<meta property="og:url" content="http://theruffian.com/tags/ubuntu/index.html">
+  <meta name="description" content="写作背景在某云搞了个服务器，装了个数据库后一切配置OK，发现远程连接不上，排查了一天没有找到问题（安全组策略及防火墙、开放端口） 。在毫无头绪之际突然想到nginx代理的80端口可以访问，本着All Roads Lead to Rome的原则，尝试用nginx代理来解决此问题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx代理mysql数据库 stream">
+<meta property="og:url" content="http://theruffian.com/2022/03/03/stream/index.html">
 <meta property="og:site_name" content="BugPZ">
-<meta property="og:description" content="in case I don&#39;t see you, Good afternoon, Good evening, And good night.">
+<meta property="og:description" content="写作背景在某云搞了个服务器，装了个数据库后一切配置OK，发现远程连接不上，排查了一天没有找到问题（安全组策略及防火墙、开放端口） 。在毫无头绪之际突然想到nginx代理的80端口可以访问，本着All Roads Lead to Rome的原则，尝试用nginx代理来解决此问题">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/38e4653a36724cbb8315543f6be26aee.png">
+<meta property="article:published_time" content="2022-03-03T06:22:58.000Z">
+<meta property="article:modified_time" content="2022-10-19T02:13:30.412Z">
 <meta property="article:author" content="TheRuffian">
+<meta property="article:tag" content="nginx">
+<meta property="article:tag" content="TheServer">
+<meta property="article:tag" content="Database">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/38e4653a36724cbb8315543f6be26aee.png">
   
   
     <link rel="icon" href="/assets/img/favicon.ico">
@@ -144,64 +151,208 @@ var _hmt = _hmt || [];
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-stream" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2021" class="archive-year">2021</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2021/10/15/ubuntu-wechatdevtool/" class="archive-article-date">
-  	<time datetime="2021-10-15T03:11:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-10-15</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/10/15/ubuntu-wechatdevtool/">ubuntu运行微信开发者工具</a>
+    <h1 class="article-title" itemprop="name">
+      nginx代理mysql数据库 stream
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2022/03/03/stream/" class="archive-article-date">
+  	<time datetime="2022-03-03T06:22:58.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-03-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="写作背景"><a href="#写作背景" class="headerlink" title="写作背景"></a>写作背景</h3><p>在某云搞了个服务器，装了个数据库后一切配置OK，发现远程连接不上，排查了一天没有找到问题（安全组策略及防火墙、开放端口） 。在毫无头绪之际突然想到nginx代理的80端口可以访问，本着All Roads Lead to Rome的原则，尝试用nginx代理来解决此问题</p>
+<span id="more"></span>
+<h1 id="准备工作-已安装nginx跳过此步骤"><a href="#准备工作-已安装nginx跳过此步骤" class="headerlink" title="准备工作 (已安装nginx跳过此步骤)"></a>准备工作 (已安装nginx跳过此步骤)</h1><p><a target="_blank" rel="noopener" href="http://nginx.org/download/">nginx包地址</a></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#下载nginx  版本自选 听说需要&gt;1.9.0版本才有strean</span></span><br><span class="line"><span class="built_in">wget</span> http://nginx.org/download/nginx<span class="literal">-1</span>.<span class="number">18.0</span>.tar.gz</span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">tar xf nginx<span class="literal">-1</span>.<span class="number">18.0</span>.tar.gz </span><br></pre></td></tr></table></figure>
+<h1 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h1><pre><code>三方依赖库请自行百度，这里就不赘述了
+</code></pre>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> nginx<span class="literal">-1</span>.<span class="number">18.0</span></span><br><span class="line"><span class="comment"># 编译nginx时加上 ----with-stream</span></span><br><span class="line"><span class="comment"># 可选参数 --prefix=/usr/local/nginx   (--prefix=/usr/local/nginx指明软件安装的路径，/nginx是为安装nginx新建的目录)</span></span><br><span class="line">./configure <span class="literal">--with-stream</span></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<h1 id="更改配置文件"><a href="#更改配置文件" class="headerlink" title="更改配置文件"></a>更改配置文件</h1><pre><code>假设nginx目录是 /usr/local/nginx 
+</code></pre>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vi /usr/local/nginx/conf/nginx.conf</span><br><span class="line"><span class="comment"># 在文件最后添加以下配置</span></span><br><span class="line">stream &#123;</span><br><span class="line">    server &#123;</span><br><span class="line">       listen <span class="number">12345</span>;	<span class="comment">#外部访问端口 根据需要自行修改</span></span><br><span class="line">       proxy_connect_timeout <span class="number">10</span>s;</span><br><span class="line">       proxy_timeout <span class="number">1800</span>s;<span class="comment">#设置客户端和代理服务之间的超时时间，如果半小时内没操作将自动断开。</span></span><br><span class="line">       proxy_pass <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">3306</span>; 本地数据库</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">#配置后保存 启动nginx</span></span><br><span class="line">/usr/local/nginx/sbin/nginx</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="测试是否成功"><a href="#测试是否成功" class="headerlink" title="测试是否成功"></a>测试是否成功</h1><p><img src="https://img-blog.csdnimg.cn/38e4653a36724cbb8315543f6be26aee.png" alt="成功后的图片"><br>搞定</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">ubuntu</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">nginx</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">devtool</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">TheServer</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Database</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://theruffian.com/2022/03/03/stream/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+    <a href="/2022/03/30/Linux%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Linux定时任务
+        
+      </div>
+    </a>
   
   
-    </div></section>
+    <a href="/2021/11/09/selenium%E8%87%AA%E5%8A%A8%E5%8C%96%E8%84%9A%E6%9C%AC%E8%BF%87%E9%AA%8C%E8%AF%81%E7%A0%81/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">selenium自动化脚本过验证码</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E4%BD%9C%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">写作背景</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C-%E5%B7%B2%E5%AE%89%E8%A3%85nginx%E8%B7%B3%E8%BF%87%E6%AD%A4%E6%AD%A5%E9%AA%A4"><span class="toc-number"></span> <span class="toc-text">准备工作 (已安装nginx跳过此步骤)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E7%BC%96%E8%AF%91"><span class="toc-number"></span> <span class="toc-text">开始编译</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9B%B4%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number"></span> <span class="toc-text">更改配置文件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F"><span class="toc-number"></span> <span class="toc-text">测试是否成功</span></a>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -224,9 +375,9 @@ var _hmt = _hmt || [];
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
@@ -290,19 +441,75 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">TypeScript</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">devtool</a>
+                <a href="javascript:void(0)" class="js-tag color4">selenium</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">selenium</a>
+                <a href="javascript:void(0)" class="js-tag color2">Ubuntu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">DevTools</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">TheServer</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Database</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">TestingTools</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Requests</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Selenium</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Datebase</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Typescript</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Tools</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Javascript</a>
               </li>
             
             <div class="clearfix"></div>
